@@ -62,7 +62,8 @@
                 },
               },
             ],
-            floatPrecision: 3,
+            floatPrecision: 5,
+            multipass: true,
           });
           const svg = svgOut.data;
           const dataUrl = `data:${file.type};base64,${btoa(svg)}`;
@@ -75,7 +76,10 @@
                 ...out,
                 [
                   blob,
-                  `${`${fileBaseName}-${layerName}`
+                  `${(layerName === `Layer ${idx}`
+                    ? `${fileBaseName}-${layerName}`
+                    : layerName
+                  )
                     .toLowerCase()
                     .replace(/ /g, '-')
                     .replace(/[^\w-]+/g, '')}.svg`,
@@ -93,6 +97,7 @@
   };
 
   const displayFileContents = (files: File[]) => {
+    dropping = false;
     svgs = [];
     for (const file of files) {
       const reader = new FileReader();
@@ -117,7 +122,12 @@
   onMount(() => {
     if (!dropArea || !fileInput) throw new Error('missing el');
 
-    const els = [dropArea, document as unknown as HTMLElement];
+    const els = [
+      dropArea,
+      document as unknown as HTMLElement,
+      document.body,
+      document.documentElement,
+    ];
 
     // Prevent default drag behaviors
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
