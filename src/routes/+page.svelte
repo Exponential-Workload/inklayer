@@ -2,6 +2,7 @@
   import './style.scss';
   import { onMount, onDestroy } from 'svelte';
   import svgo from 'svgo';
+  import { dev } from '$app/environment';
 
   let svgs: [string, File][] = [];
   let out: [string, string][] = [];
@@ -131,7 +132,7 @@
 
     // Prevent default drag behaviors
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-      if (!listening) return;
+      if (!listening) return dev ? void 0 : console.warn('Drop not listening');
       dropArea.addEventListener(eventName, e => {
         e.preventDefault();
         e.stopPropagation();
@@ -140,7 +141,7 @@
 
     // Highlight drop area when a file is dragged over
     ['dragenter', 'dragover'].forEach(eventName => {
-      if (!listening) return;
+      if (!listening) return dev ? void 0 : console.warn('Drop not listening');
       els.forEach(v =>
         v.addEventListener(eventName, () => {
           dropping = true;
@@ -149,7 +150,7 @@
     });
 
     ['dragleave', 'drop'].forEach(eventName => {
-      if (!listening) return;
+      if (!listening) return dev ? void 0 : console.warn('Drop not listening');
       document.addEventListener(eventName, () => {
         dropping = false;
       });
@@ -158,7 +159,8 @@
     // Handle dropped files
     els.forEach(v =>
       v.addEventListener('drop', e => {
-        if (!listening) return;
+        if (!listening)
+          return dev ? void 0 : console.warn('Drop not listening');
         e.preventDefault();
         e.stopPropagation();
         const files = e.dataTransfer?.files;
@@ -169,7 +171,7 @@
 
     // Handle file input change (fallback for selecting files)
     fileInput.addEventListener('change', () => {
-      if (!listening) return;
+      if (!listening) return dev ? void 0 : console.warn('Drop not listening');
       const files = (fileInput as any).files;
       if (!files) throw new Error('no files');
       displayFileContents(files);
